@@ -1,55 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
+
 void printHexAndAscii(const unsigned char *buffer, size_t bytesRead, size_t offset) {
-    printf("%08zx: ", offset);
+    printf("%08zx: ", offset); // Print the offset in hexadecimal
 
-    // Print the hex values grouped
-    bool newlineEncountered = false;
-    for (size_t i = 0; i < bytesRead; i++) {
-        if (newlineEncountered) {
-            break;
-        } else if (i < bytesRead - 1 && buffer[i] == '\\' && buffer[i + 1] == 'n') {
-            printf("0a "); // Print 0a for newline
-            newlineEncountered = true;
-            i++; // Skip the 'n' character
+    // Print hex values in pairs
+    for (size_t i = 0; i < 16; i += 2) {
+        if (i < bytesRead) {
+            printf("%02x", buffer[i]); // Print first byte of the pair
         } else {
-            printf("%02x", buffer[i]);
-            if (i % 2 == 1) {
-                printf(" "); // Add a space after every 2 characters
-            }
+            printf("  "); // Print spaces if less than 16 bytes were read
         }
-    }
 
-    // Add extra spaces for alignment
-    size_t hexPrinted = bytesRead;
-    while (hexPrinted < 16) {
-        printf("   ");
-        hexPrinted++;
+        if (i + 1 < bytesRead) {
+            printf("%02x", buffer[i + 1]); // Print second byte of the pair
+        } else {
+            printf("  "); // Print spaces if the second byte of the pair is missing
+        }
+
+        printf(" "); // Space between byte pairs, but no extra space after 8 bytes
     }
 
     printf(" ");
-
-    // Reset newline detection flag for ASCII part
-    newlineEncountered = false;
-
-    // Print the ASCII characters
     for (size_t i = 0; i < bytesRead; i++) {
-        if (newlineEncountered) {
-            break;
-        } else if (i < bytesRead - 1 && buffer[i] == '\\' && buffer[i + 1] == 'n') {
-            printf("."); // Interpret '\n' as a newline character and print '.'
-            newlineEncountered = true;
-            i++; // Skip the 'n' character
-        } else if (buffer[i] >= 32 && buffer[i] <= 126) {
+        if (buffer[i] >= 32 && buffer[i] <= 126)
             printf("%c", buffer[i]);
-        } else {
+        else
             printf(".");
-        }
     }
 
     printf("\n");
 }
+
 
 
 int main(int argc, char *argv[]) {
